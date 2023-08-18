@@ -8,6 +8,6 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_DB: UFC_DB
+      POSTGRES_DB: UFC_DATABASE
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root

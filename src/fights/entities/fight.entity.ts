@@ -1,6 +1,6 @@
 import { Fighter } from 'src/fighters/entities/fighter.entity';
 import { Event } from 'src/events/entities/event.entity';
-import { PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
 
 export class Fight {
   @PrimaryGeneratedColumn()
@@ -17,4 +17,16 @@ export class Fight {
 
   @ManyToOne(() => Fighter, (fighter) => fighter.rankings)
   winner: Fighter;
+
+  @Column()
+  rounds: number;
+
+  @Column()
+  result: string;
+
+  @Column()
+  knockoutTime: string;
+
+  @Column()
+  submissionTime: string;
 }

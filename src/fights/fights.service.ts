@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFightDto } from './dto/create-fight.dto';
 import { UpdateFightDto } from './dto/update-fight.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeepPartial, Repository } from 'typeorm';
+import { Fight } from './entities/fight.entity';
 
 @Injectable()
 export class FightsService {
-  create(createFightDto: CreateFightDto) {
-    return 'This action adds a new fight';
+  constructor(
+    @InjectRepository(Fight)
+    private readonly fightRepository: Repository<Fight>,
+  ) {}
+
+  async createFight(createFightDto: CreateFightDto): Promise<Fight> {
+    const { event, fighter1, fighter2, winner } = createFightDto;
+
+    const fightData: DeepPartial<Fight> = {
+      event: { id: event },
+      fighter1: { id: fighter1 },
+      fighter2: { id: fighter2 },
+      winner: { id: winner },
+    };
+
+    const newFight = this.fightRepository.create(fightData);
+    return this.fightRepository.save(newFight);
   }
 
-  findAll() {
-    return `This action returns all fights`;
+  async findFightById(id: number): Promise<Fight> {
+    const fight = await this.fightRepository.findOne({ where: { id } });
+    if (!fight) {
+      throw new NotFoundException(`Fight with id ${id} not found`);
+    }
+    return fight;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} fight`;
-  }
+  async updateFight(
+    id: number,
+    updateFightDto: UpdateFightDto,
+  ): Promise<Fight> {
+    const { event, fighter1, fighter2, winner } = updateFightDto;
 
-  update(id: number, updateFightDto: UpdateFightDto) {
-    return `This action updates a #${id} fight`;
-  }
+    const fightToUpdate = await this.fightRepository.findOne({ where: { id } });
+    if (!fightToUpdate) {
+      throw new NotFoundException(`Fight with id ${id} not found`);
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} fight`;
+    return this.fightRepository.save(fightToUpdate);
   }
 }

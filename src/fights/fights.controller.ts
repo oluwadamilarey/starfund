@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Patch } from '@nestjs/common';
 import { FightsService } from './fights.service';
+import { Fight } from './entities/fight.entity';
 import { CreateFightDto } from './dto/create-fight.dto';
 import { UpdateFightDto } from './dto/update-fight.dto';
 
@@ -8,27 +9,22 @@ export class FightsController {
   constructor(private readonly fightsService: FightsService) {}
 
   @Post()
-  create(@Body() createFightDto: CreateFightDto) {
-    return this.fightsService.create(createFightDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.fightsService.findAll();
+  async createFight(@Body() createFightDto: CreateFightDto): Promise<Fight> {
+    return this.fightsService.createFight(createFightDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.fightsService.findOne(+id);
+  async findFightById(@Param('id') id: number): Promise<Fight> {
+    return this.fightsService.findFightById(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFightDto: UpdateFightDto) {
-    return this.fightsService.update(+id, updateFightDto);
+  async updateFight(
+    @Param('id') id: number,
+    @Body() updateFightDto: UpdateFightDto,
+  ): Promise<Fight> {
+    return this.fightsService.updateFight(id, updateFightDto);
   }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.fightsService.remove(+id);
-  }
+  //TODO
+  // Implement other controller methods
 }

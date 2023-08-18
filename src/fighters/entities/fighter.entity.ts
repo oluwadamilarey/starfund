@@ -19,6 +19,15 @@ export class Fighter {
   @Column()
   team: string;
 
+  @Column()
+  wins: number;
+
+  @Column()
+  losses: number;
+
+  @Column()
+  knockouts: number;
+
   @OneToMany(() => Event, (event) => event.fighter1)
   eventsAsFighter1: Event[];
 

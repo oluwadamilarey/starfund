@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRankingDto } from './dto/create-ranking.dto';
-import { UpdateRankingDto } from './dto/update-ranking.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Ranking } from './entities/ranking.entity';
 
 @Injectable()
 export class RankingsService {
-  create(createRankingDto: CreateRankingDto) {
-    return 'This action adds a new ranking';
+  constructor(
+    @InjectRepository(Ranking)
+    private rankingRepository: Repository<Ranking>,
+  ) {}
+
+  async createRanking(createRankingDto: CreateRankingDto): Promise<Ranking> {
+    const newRanking = this.rankingRepository.create(createRankingDto);
+    return this.rankingRepository.save(newRanking);
   }
 
-  findAll() {
-    return `This action returns all rankings`;
+  async getRankingById(id: number): Promise<Ranking> {
+    const ranking = await this.rankingRepository.findOne({ where: { id } });
+    if (!ranking) {
+      throw new NotFoundException(`Ranking with id ${id} not found`);
+    }
+    return ranking;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ranking`;
+  async getAllRankings(): Promise<Ranking[]> {
+    return this.rankingRepository.find();
   }
 
-  update(id: number, updateRankingDto: UpdateRankingDto) {
-    return `This action updates a #${id} ranking`;
+  async updateRanking(
+    id: number,
+    updateRankingDto: CreateRankingDto,
+  ): Promise<Ranking> {
+    const rankingToUpdate = await this.rankingRepository.findOne({
+      where: { id },
+    });
+    if (!rankingToUpdate) {
+      throw new NotFoundException(`Ranking with id ${id} not found`);
+    }
+    Object.assign(rankingToUpdate, updateRankingDto);
+    return this.rankingRepository.save(rankingToUpdate);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} ranking`;
+  async deleteRanking(id: number): Promise<void> {
+    const ranking = await this.rankingRepository.findOne({ where: { id } });
+    if (!ranking) {
+      throw new NotFoundException(`Ranking with id ${id} not found`);
+    }
+    await this.rankingRepository.remove(ranking);
   }
 }
